@@ -36,4 +36,18 @@ public interface EmployeeService {
      * @return
      */
     Result startOrStop(Integer status, Long id);
+
+    /**
+     * 更新员工
+     * @param employeeDTO
+     * @return
+     */
+    Result update(EmployeeDTO employeeDTO);
+
+    /**
+     * 根据id查询员工
+     * @param id
+     * @return
+     */
+    Result getById(Long id);
 }
