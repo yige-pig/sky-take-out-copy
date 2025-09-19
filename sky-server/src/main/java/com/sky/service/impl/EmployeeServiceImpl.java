@@ -116,4 +116,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         return Result.success(pageResult);
     }
 
+    /**
+     * 员工启用或禁用
+     * @param status
+     * @return
+     */
+    @Override
+    public Result startOrStop(Integer status, Long id) {
+        //创建对象 更新状态，更新时间/人
+        Employee employee = Employee.builder().status(status)
+                .updateUser(BaseContext.getCurrentId())
+                .updateTime(LocalDateTime.now())
+                .id(id).build();
+
+        //修改数据库
+        employeeMapper.update(employee);
+        return Result.success();
+    }
+
 }
