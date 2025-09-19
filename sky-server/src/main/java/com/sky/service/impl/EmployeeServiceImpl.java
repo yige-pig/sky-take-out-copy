@@ -1,17 +1,25 @@
 package com.sky.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.sky.constant.MessageConstant;
+import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
+import com.sky.context.BaseContext;
+import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
+import com.sky.result.Result;
 import com.sky.service.EmployeeService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
+import java.time.LocalDateTime;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -51,8 +59,37 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
         }
 
+        //用户id存如BaseContext
+        BaseContext.setCurrentId(employee.getId());
+
         //3、返回实体对象
         return employee;
+    }
+
+    /**
+     * 新增员工
+     * @param employeeDTO
+     * @return
+     */
+    @Override
+    public Result save(EmployeeDTO employeeDTO) {
+        //数据拷贝
+        Employee employee = BeanUtil.copyProperties(employeeDTO, Employee.class);
+        //创建/修改时间/人
+        LocalDateTime now = LocalDateTime.now();
+        employee.setCreateTime(now);
+        employee.setUpdateTime(now);
+
+        employee.setCreateUser(BaseContext.getCurrentId());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        //状态
+        employee.setStatus(StatusConstant.ENABLE);
+        //密码 加密
+        employee.setPassword(DigestUtils.
+                md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
+
+        employeeMapper.insert(employee);
+        return Result.success();
     }
 
 }
