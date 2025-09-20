@@ -81,12 +81,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         //数据拷贝
         Employee employee = BeanUtil.copyProperties(employeeDTO, Employee.class);
         //创建/修改时间/人
-        LocalDateTime now = LocalDateTime.now();
+        /*LocalDateTime now = LocalDateTime.now();
         employee.setCreateTime(now);
         employee.setUpdateTime(now);
 
         employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+        employee.setUpdateUser(BaseContext.getCurrentId());*/
         //状态
         employee.setStatus(StatusConstant.ENABLE);
         //密码 加密
@@ -125,8 +125,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Result startOrStop(Integer status, Long id) {
         //创建对象 更新状态，更新时间/人
         Employee employee = Employee.builder().status(status)
-                .updateUser(BaseContext.getCurrentId())
-                .updateTime(LocalDateTime.now())
+                /*.updateUser(BaseContext.getCurrentId())
+                .updateTime(LocalDateTime.now())*/
                 .id(id).build();
 
         //修改数据库
@@ -142,8 +142,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Result update(EmployeeDTO employeeDTO) {
         Employee employee = BeanUtil.copyProperties(employeeDTO, Employee.class);
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+        /*employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());*/
         employeeMapper.update(employee);
         return Result.success();
     }
