@@ -6,6 +6,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
+import com.sky.context.BaseContext;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
@@ -21,11 +22,14 @@ import com.sky.service.DishService;
 import com.sky.vo.DishVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class DishServiceImpl implements DishService {
@@ -36,6 +40,10 @@ public class DishServiceImpl implements DishService {
     private DishFlavorMapper dishFlavorMapper;
     @Autowired
     private SetmealDishMapper setmealDishMapper;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    private static final String keyPrefix = "DISH_";
 
     /**
      * 保存菜品
@@ -55,7 +63,15 @@ public class DishServiceImpl implements DishService {
         }
         if(!CollUtil.isEmpty(dishDTO.getFlavors()))
             dishFlavorMapper.insertBatch(dishDTO.getFlavors());
+        //删除缓存
+        cleanCaches(keyPrefix+dish.getCategoryId());
+
         return Result.success();
+    }
+
+    private void cleanCaches(String pattern) {
+        Set<String> keys = stringRedisTemplate.keys(pattern);
+        stringRedisTemplate.delete(keys);
     }
 
     /**
@@ -97,6 +113,9 @@ public class DishServiceImpl implements DishService {
             //删除菜品关联的口味数据
             dishFlavorMapper.deleteByDishId(id);//后绪步骤实现
         }
+
+        //删除缓存
+        cleanCaches(keyPrefix+"*");
     }
 
     @Override
@@ -136,6 +155,8 @@ public class DishServiceImpl implements DishService {
             //向口味表插入n条数据
             dishFlavorMapper.insertBatch(flavors);
         }
+
+        cleanCaches(keyPrefix+"*");
     }
 
     @Override
@@ -170,4 +191,16 @@ public class DishServiceImpl implements DishService {
 
         return dishVOList;
     }
+
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        Dish dish = Dish.builder().status(status).id(id)
+                .updateTime(LocalDateTime.now())
+                .updateUser(BaseContext.getCurrentId())
+                .build();
+        dishMapper.update(dish);
+        cleanCaches(keyPrefix+"*");
+    }
+
+
 }
