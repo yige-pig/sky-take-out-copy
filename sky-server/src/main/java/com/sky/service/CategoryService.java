@@ -47,4 +47,6 @@ public interface CategoryService {
      * @param id
      */
     void deleteById(Integer id);
+
+    List<Category> list(Integer type);
 }

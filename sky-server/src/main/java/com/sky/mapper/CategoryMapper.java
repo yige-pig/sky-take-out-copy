@@ -48,5 +48,5 @@ public interface CategoryMapper {
     @Delete("delete from category where id = #{id}")
     void deleteById(Integer id);
 
-
+    List<Category> list(Integer type);
 }

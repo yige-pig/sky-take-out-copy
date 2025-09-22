@@ -103,4 +103,9 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteById(Integer id) {
         categoryMapper.deleteById(id);
     }
+
+    @Override
+    public List<Category> list(Integer type) {
+        return categoryMapper.list(type);
+    }
 }
