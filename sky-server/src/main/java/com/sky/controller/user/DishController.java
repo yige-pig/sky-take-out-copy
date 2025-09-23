@@ -55,7 +55,7 @@ public class DishController {
         dish.setStatus(StatusConstant.ENABLE);//查询起售中的菜品
 
         dishVOS = dishService.listWithFlavor(dish);
-        list = new ArrayList<>();
+        list.clear();
         for (DishVO dishVO : dishVOS) {
             list.add(JSONUtil.toJsonStr(dishVO));
         }
