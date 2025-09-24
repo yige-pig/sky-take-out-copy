@@ -42,4 +42,6 @@ public interface OrderMapper {
     Orders getById(Long id);
 
     Double sumByMap(Map map);
+
+    Integer countByMap(Map map);
 }
